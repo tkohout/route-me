@@ -50,6 +50,8 @@
 
 #import "RMUserLocation.h"
 
+#import "SMCalloutView/SMCalloutView.h"
+
 #pragma mark --- begin constants ----
 
 #define kZoomRectPixelBuffer 150.0
@@ -63,7 +65,7 @@
 
 #pragma mark --- end constants ----
 
-@interface RMMapView (PrivateMethods) <UIScrollViewDelegate, UIGestureRecognizerDelegate, RMMapScrollViewDelegate, CLLocationManagerDelegate>
+@interface RMMapView (PrivateMethods) <UIScrollViewDelegate, UIGestureRecognizerDelegate, RMMapScrollViewDelegate, CLLocationManagerDelegate, SMCalloutViewDelegate>
 
 @property (nonatomic, retain) RMUserLocation *userLocation;
 
@@ -116,6 +118,7 @@
     BOOL _delegateHasSingleTapTwoFingersOnMap;
     BOOL _delegateHasLongSingleTapOnMap;
     BOOL _delegateHasTapOnAnnotation;
+    BOOL _delegateHasTapOnCalloutAccessoryControlForAnnotation;
     BOOL _delegateHasDoubleTapOnAnnotation;
     BOOL _delegateHasTapOnLabelForAnnotation;
     BOOL _delegateHasDoubleTapOnLabelForAnnotation;
@@ -172,6 +175,9 @@
 
     NSOperationQueue *_moveDelegateQueue;
     NSOperationQueue *_zoomDelegateQueue;
+    
+    RMAnnotation *_currentAnnotation;
+    SMCalloutView *_currentCallout;
 }
 
 @synthesize decelerationMode = _decelerationMode;
@@ -474,6 +480,7 @@
 
     _delegateHasTapOnAnnotation = [_delegate respondsToSelector:@selector(tapOnAnnotation:onMap:)];
     _delegateHasDoubleTapOnAnnotation = [_delegate respondsToSelector:@selector(doubleTapOnAnnotation:onMap:)];
+    _delegateHasTapOnCalloutAccessoryControlForAnnotation = [_delegate respondsToSelector:@selector(tapOnCalloutAccessoryControl:forAnnotation:onMap:)];
     _delegateHasTapOnLabelForAnnotation = [_delegate respondsToSelector:@selector(tapOnLabelForAnnotation:onMap:)];
     _delegateHasDoubleTapOnLabelForAnnotation = [_delegate respondsToSelector:@selector(doubleTapOnLabelForAnnotation:onMap:)];
 
@@ -637,7 +644,12 @@
 - (BOOL)tileSourceBoundsContainProjectedPoint:(RMProjectedPoint)point
 {
     RMSphericalTrapezium bounds = [self.tileSourcesContainer latitudeLongitudeBoundingBox];
-
+    /*
+     southWest.latitude = _bottomRight.latitude;
+     southWest.longitude = _topLeft.longitude;
+     northEast.latitude = _topLeft.latitude;
+     northEast.longitude = _bottomRight.longitude;
+     */
     if (bounds.northEast.latitude == 90.0 && bounds.northEast.longitude == 180.0 &&
         bounds.southWest.latitude == -90.0 && bounds.southWest.longitude == -180.0)
     {
@@ -1385,12 +1397,30 @@
     else
     {
         [self correctPositionOfAllAnnotationsIncludingInvisibles:NO animated:(_mapScrollViewIsZooming && !_mapScrollView.zooming)];
+        
+        if (_currentAnnotation && ! [_currentAnnotation isKindOfClass:[RMMarker class]])
+        {
+            // adjust shape annotation callouts for frame changes during zoom
+            //
+            _currentCallout.delegate = nil;
+            
+            [_currentCallout presentCalloutFromRect:_currentAnnotation.layer.bounds
+                                            inLayer:_currentAnnotation.layer
+                                 constrainedToLayer:self.layer
+                           permittedArrowDirections:SMCalloutArrowDirectionDown
+                                           animated:NO];
+            
+            _currentCallout.delegate = self;
+        }
+
+        
         _lastZoom = _zoom;
     }
 
     _lastContentOffset = _mapScrollView.contentOffset;
     _lastContentSize = _mapScrollView.contentSize;
-
+    
+        
     if (_delegateHasMapViewRegionDidChange)
         [_delegate mapViewRegionDidChange:self];
 }
@@ -1421,7 +1451,12 @@
 - (void)handleSingleTap:(UIGestureRecognizer *)recognizer
 {
     CALayer *hit = [_overlayView overlayHitTest:[recognizer locationInView:self]];
-
+    
+    if (_currentAnnotation && ! [hit isEqual:_currentAnnotation.layer])
+    {
+        [self deselectAnnotation:_currentAnnotation animated:( ! [hit isKindOfClass:[RMMarker class]])];
+    }
+    
     if ( ! hit)
     {
         [self singleTapAtPoint:[recognizer locationInView:self]];
@@ -1595,6 +1630,35 @@
 
 - (void)tapOnAnnotation:(RMAnnotation *)anAnnotation atPoint:(CGPoint)aPoint
 {
+    if (anAnnotation.layer && anAnnotation.layer.canShowCallout && anAnnotation.title && ! [anAnnotation isEqual:_currentAnnotation])
+    {
+        _currentAnnotation = [anAnnotation retain];
+        
+        _currentCallout = [[SMCalloutView alloc] init];
+        
+        _currentCallout.title = anAnnotation.title;
+        
+        if (anAnnotation.layer.leftCalloutAccessoryView)
+        {
+            if ([anAnnotation.layer.leftCalloutAccessoryView isKindOfClass:[UIControl class]])
+                [anAnnotation.layer.leftCalloutAccessoryView addGestureRecognizer:[[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapOnCalloutAccessoryWithGestureRecognizer:)] autorelease]];
+            
+            _currentCallout.leftAccessoryView = anAnnotation.layer.leftCalloutAccessoryView;
+        }
+        
+        if (anAnnotation.layer.rightCalloutAccessoryView)
+        {
+            if ([anAnnotation.layer.rightCalloutAccessoryView isKindOfClass:[UIControl class]])
+                [anAnnotation.layer.rightCalloutAccessoryView addGestureRecognizer:[[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapOnCalloutAccessoryWithGestureRecognizer:)] autorelease]];
+            
+            _currentCallout.rightAccessoryView = anAnnotation.layer.rightCalloutAccessoryView;
+        }
+        
+        _currentCallout.delegate = self;
+        
+        [self performSelector:@selector(popupCalloutViewForAnnotation:) withObject:anAnnotation afterDelay:1.0/3.0]; // allows for MapKit-like delay
+    }
+    
     if (_delegateHasTapOnAnnotation && anAnnotation)
     {
         [_delegate tapOnAnnotation:anAnnotation onMap:self];
@@ -1604,6 +1668,124 @@
         if (_delegateHasSingleTapOnMap)
             [_delegate singleTapOnMap:self at:aPoint];
     }
+}
+
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+{
+    if (_currentCallout)
+    {
+        UIView *calloutCandidate = [_currentCallout hitTest:[_currentCallout convertPoint:point fromView:self] withEvent:event];
+        
+        if (calloutCandidate)
+            return calloutCandidate;
+    }
+    
+    return [super hitTest:point withEvent:event];
+}
+
+- (void)selectAnnotation:(RMAnnotation *)annotation animated:(BOOL)animated
+{
+    if ( ! annotation && _currentAnnotation)
+        [self deselectAnnotation:_currentAnnotation animated:animated];
+    
+    if (annotation.isAnnotationOnScreen && ! [annotation isEqual:_currentAnnotation])
+    {
+        [self deselectAnnotation:_currentAnnotation animated:NO];
+        [self popupCalloutViewForAnnotation:annotation animated:animated];
+    }
+}
+
+- (void)deselectAnnotation:(RMAnnotation *)annotation animated:(BOOL)animated
+{
+    if ([annotation isEqual:_currentAnnotation] && _currentCallout)
+    {
+        [_currentCallout dismissCalloutAnimated:animated];
+        
+        if (animated)
+            [self performSelector:@selector(correctPositionOfAllAnnotations) withObject:nil afterDelay:1.0/3.0];
+        else
+            [self correctPositionOfAllAnnotations];
+        
+        [_currentAnnotation release]; _currentAnnotation = nil;
+        [_currentCallout release]; _currentCallout = nil;
+    }
+}
+
+- (void)popupCalloutViewForAnnotation:(RMAnnotation *)anAnnotation
+{
+    [self popupCalloutViewForAnnotation:anAnnotation animated:YES];
+}
+
+- (void)popupCalloutViewForAnnotation:(RMAnnotation *)anAnnotation animated:(BOOL)animated
+{
+    _currentAnnotation = [anAnnotation retain];
+    
+    _currentCallout = [SMCalloutView new];
+    
+    _currentCallout.title    = anAnnotation.title;
+    //_currentCallout.subtitle = anAnnotation.subtitle;
+    
+    _currentCallout.calloutOffset = anAnnotation.layer.calloutOffset;
+    
+    if (anAnnotation.layer.leftCalloutAccessoryView)
+    {
+        if ([anAnnotation.layer.leftCalloutAccessoryView isKindOfClass:[UIControl class]])
+            [anAnnotation.layer.leftCalloutAccessoryView addGestureRecognizer:[[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapOnCalloutAccessoryWithGestureRecognizer:)] autorelease]];
+        
+        _currentCallout.leftAccessoryView = anAnnotation.layer.leftCalloutAccessoryView;
+    }
+    
+    if (anAnnotation.layer.rightCalloutAccessoryView)
+    {
+        if ([anAnnotation.layer.rightCalloutAccessoryView isKindOfClass:[UIControl class]])
+            [anAnnotation.layer.rightCalloutAccessoryView addGestureRecognizer:[[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapOnCalloutAccessoryWithGestureRecognizer:)] autorelease]];
+        
+        _currentCallout.rightAccessoryView = anAnnotation.layer.rightCalloutAccessoryView;
+    }
+    
+    _currentCallout.delegate = self;
+    
+    [self correctPositionOfAllAnnotations];
+    
+    anAnnotation.layer.zPosition = _currentCallout.layer.zPosition = MAXFLOAT;
+    
+    [_currentCallout presentCalloutFromRect:anAnnotation.layer.bounds
+                                    inLayer:anAnnotation.layer
+                         constrainedToLayer:self.layer
+                   permittedArrowDirections:SMCalloutArrowDirectionDown
+                                   animated:animated];
+}
+
+
+/*
+- (void)popupCalloutViewForAnnotation:(RMAnnotation *)anAnnotation
+{
+    [_currentCallout presentCalloutFromRect:anAnnotation.layer.frame
+                                     inView:self
+                               aboveSubview:_overlayView
+                          constrainedToView:self
+                   permittedArrowDirections:SMCalloutArrowDirectionDown
+                                   animated:YES];
+}*/
+
+- (NSTimeInterval)calloutView:(SMCalloutView *)calloutView delayForRepositionWithSize:(CGSize)offset
+{
+    [self registerMoveEventByUser:NO];
+    
+    CGPoint contentOffset = _mapScrollView.contentOffset;
+    
+    contentOffset.x -= offset.width;
+    contentOffset.y -= offset.height;
+    
+    [_mapScrollView setContentOffset:contentOffset animated:YES];
+    
+    return kSMCalloutViewRepositionDelayForUIScrollView;
+}
+
+- (void)tapOnCalloutAccessoryWithGestureRecognizer:(UIGestureRecognizer *)recognizer
+{
+    if (_delegateHasTapOnCalloutAccessoryControlForAnnotation)
+        [_delegate tapOnCalloutAccessoryControl:(UIControl *)recognizer.view forAnnotation:_currentAnnotation onMap:self];
 }
 
 - (void)doubleTapOnAnnotation:(RMAnnotation *)anAnnotation atPoint:(CGPoint)aPoint
