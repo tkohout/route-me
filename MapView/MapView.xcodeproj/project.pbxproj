@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		126693040EB76C0B00E002D5 /* RMConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 126692A00EB75C0A00E002D5 /* RMConfiguration.m */; };
+		14CDECE516E4DE9800B13056 /* RMZoomConverter.h in Headers */ = {isa = PBXBuildFile; fileRef = 14CDECBE16E4DE9800B13056 /* RMZoomConverter.h */; };
+		14CDECE616E4DE9800B13056 /* RMZoomConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = 14CDECBF16E4DE9800B13056 /* RMZoomConverter.m */; };
+		14CDECEB16E4DE9800B13056 /* SMCalloutView.h in Headers */ = {isa = PBXBuildFile; fileRef = 14CDECDE16E4DE9800B13056 /* SMCalloutView.h */; };
+		14CDECEC16E4DE9800B13056 /* SMCalloutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 14CDECDF16E4DE9800B13056 /* SMCalloutView.m */; };
 		160307B316835B2C008F8AC2 /* libProj4.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 160307B216835B2C008F8AC2 /* libProj4.a */; };
 		1606C9FE13D86BA400547581 /* RMOpenCycleMapSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 1606C9FC13D86BA300547581 /* RMOpenCycleMapSource.h */; };
 		1606C9FF13D86BA400547581 /* RMOpenCycleMapSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 1606C9FD13D86BA300547581 /* RMOpenCycleMapSource.m */; };
@@ -113,6 +117,14 @@
 		1266929F0EB75C0A00E002D5 /* RMConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMConfiguration.h; sourceTree = "<group>"; };
 		126692A00EB75C0A00E002D5 /* RMConfiguration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMConfiguration.m; sourceTree = "<group>"; };
 		12F2031E0EBB65E9003D7B6B /* RMMapViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMMapViewDelegate.h; sourceTree = "<group>"; };
+		14CDECBE16E4DE9800B13056 /* RMZoomConverter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMZoomConverter.h; sourceTree = "<group>"; };
+		14CDECBF16E4DE9800B13056 /* RMZoomConverter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMZoomConverter.m; sourceTree = "<group>"; };
+		14CDECC116E4DE9800B13056 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		14CDECC216E4DE9800B13056 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		14CDECC316E4DE9800B13056 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
+		14CDECDE16E4DE9800B13056 /* SMCalloutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMCalloutView.h; sourceTree = "<group>"; };
+		14CDECDF16E4DE9800B13056 /* SMCalloutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMCalloutView.m; sourceTree = "<group>"; };
+		14CDECE016E4DE9800B13056 /* SMCalloutView.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SMCalloutView.podspec; sourceTree = "<group>"; };
 		160307B216835B2C008F8AC2 /* libProj4.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libProj4.a; path = ../Proj4/libProj4.a; sourceTree = "<group>"; };
 		1606C9FC13D86BA300547581 /* RMOpenCycleMapSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMOpenCycleMapSource.h; sourceTree = "<group>"; };
 		1606C9FD13D86BA300547581 /* RMOpenCycleMapSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMOpenCycleMapSource.m; sourceTree = "<group>"; };
@@ -264,6 +276,20 @@
 			name = Configuration;
 			sourceTree = "<group>";
 		};
+		14CDECC016E4DE9800B13056 /* SMCalloutView */ = {
+			isa = PBXGroup;
+			children = (
+				14CDECC116E4DE9800B13056 /* .gitignore */,
+				14CDECC216E4DE9800B13056 /* LICENSE */,
+				14CDECC316E4DE9800B13056 /* README.md */,
+				14CDECDE16E4DE9800B13056 /* SMCalloutView.h */,
+				14CDECDF16E4DE9800B13056 /* SMCalloutView.m */,
+				14CDECE016E4DE9800B13056 /* SMCalloutView.podspec */,
+			);
+			name = SMCalloutView;
+			path = Map/SMCalloutView;
+			sourceTree = "<group>";
+		};
 		16EC85CB133CA69A00219947 /* Map sources */ = {
 			isa = PBXGroup;
 			children = (
@@ -304,6 +330,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				14CDECC016E4DE9800B13056 /* SMCalloutView */,
 				2BF0E4540F73119C0095A926 /* Documentation */,
 				2B246B230F8AE20300A7D55D /* Testing */,
 				B8C9740D0E8A196E007D16AD /* Map */,
@@ -461,6 +488,8 @@
 		B8C9740D0E8A196E007D16AD /* Map */ = {
 			isa = PBXGroup;
 			children = (
+				14CDECBE16E4DE9800B13056 /* RMZoomConverter.h */,
+				14CDECBF16E4DE9800B13056 /* RMZoomConverter.m */,
 				17F02BB01319BA4B00260C6B /* RouteMe.h */,
 				96492C3F0FA8AD3400EBA6D2 /* RMGlobalConstants.h */,
 				B1EB26C510B5D8E6009F8658 /* RMNotifications.h */,
@@ -580,6 +609,8 @@
 				16E5A63A15E531F200C92A5A /* RMCompositeSource.h in Headers */,
 				DD5FA1EB15E2B020004EB6C5 /* RMLoadingTileView.h in Headers */,
 				DD4195C9162356900049E6BA /* RMBingSource.h in Headers */,
+				14CDECE516E4DE9800B13056 /* RMZoomConverter.h in Headers */,
+				14CDECEB16E4DE9800B13056 /* SMCalloutView.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -679,6 +710,8 @@
 				16E5A63B15E531F200C92A5A /* RMCompositeSource.m in Sources */,
 				DD5FA1EC15E2B020004EB6C5 /* RMLoadingTileView.m in Sources */,
 				DD4195CA162356900049E6BA /* RMBingSource.m in Sources */,
+				14CDECE616E4DE9800B13056 /* RMZoomConverter.m in Sources */,
+				14CDECEC16E4DE9800B13056 /* SMCalloutView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

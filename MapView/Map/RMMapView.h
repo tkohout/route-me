@@ -469,6 +469,9 @@ typedef enum : NSUInteger {
 /** Whether the map view should display a heading calibration alert when necessary. The default value is `YES`. */
 @property (nonatomic, assign)   BOOL displayHeadingCalibration;
 
+/** When we want to resize our frame in animation and don't want to have background ugly*/
+@property (nonatomic, assign) BOOL mapZooming;
+
 /** Set the mode used to track the user location. 
 *   @param mode The mode used to track the user location. 
 *   @param animated Whether changes to the map center or rotation should be animated when the mode is changed. */
