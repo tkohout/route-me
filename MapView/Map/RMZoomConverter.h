@@ -10,8 +10,15 @@
 #import "RMTile.h"
 #import <CoreLocation/CoreLocation.h>
 
+
+typedef struct{
+    __unsafe_unretained NSDecimalNumber * x;
+    __unsafe_unretained NSDecimalNumber * y;
+    int zoom;
+}RMTileDec;
+
 @interface RMZoomConverter : NSObject
--initWithBaseTile: (RMTile) baseTile zoomSteps: (int) aZoomSteps;
+-(id)initWithBaseCoord:(CLLocationCoordinate2D)aBaseCoord minZoom: (int) minZoom zoomSteps: (int) aZoomSteps;
 - (RMTile) convertTile: (RMTile) tile;
 - (RMTile) reverseConvertTile: (RMTile) tile;
 

@@ -25,20 +25,21 @@ CGFloat RadiansToDegrees(CGFloat radians)
     return radians * 180 / M_PI;
 };
 
-typedef struct{
-    __unsafe_unretained NSDecimalNumber * x;
-    __unsafe_unretained NSDecimalNumber * y;
-    int zoom;
-}RMTileDec;
+int minZoom;
 
 
--(id)initWithBaseTile:(RMTile)aBaseTile zoomSteps: (int) aZoomSteps{
+
+-(id)initWithBaseCoord:(CLLocationCoordinate2D)aBaseCoord minZoom: (int) aMinZoom zoomSteps: (int) aZoomSteps{
     self = [super init];
     
     if (self){
-        baseTile.x = aBaseTile.x;
-        baseTile.y = aBaseTile.y;
-        baseTile.zoom  = aBaseTile.zoom;
+        
+        minZoom = aMinZoom - zoomSteps;
+        
+        RMTileDec baseTileDec = [self coordinateToTile:aBaseCoord zoom:minZoom];
+        baseTile.x = [baseTileDec.x intValue];
+        baseTile.y = [baseTileDec.y intValue];
+        baseTile.zoom = baseTileDec.zoom ;
         
         zoomSteps = aZoomSteps;
     }
@@ -50,7 +51,7 @@ typedef struct{
 }
 
 - (int)minZoom{
-    return zoomSteps;
+    return minZoom;
 }
 
 #pragma mark Tile conversion
@@ -146,14 +147,14 @@ typedef struct{
     
     NSDecimalNumber * multiplier = [[NSDecimalNumber alloc] initWithInt:(int)pow(2, zoomSteps)];
     
-    NSDecimalNumber * xDiff = [self abs:[[baseTileDecX decimalNumberBySubtracting: coordTile.x] decimalNumberByMultiplyingBy:multiplier] ] ;
-    NSDecimalNumber * yDiff = [self abs:[[baseTileDecY decimalNumberBySubtracting: coordTile.y] decimalNumberByMultiplyingBy:multiplier]];
+    NSDecimalNumber * xDiff = [[baseTileDecX decimalNumberBySubtracting: coordTile.x] decimalNumberByMultiplyingBy:multiplier] ;
+    NSDecimalNumber * yDiff = [[baseTileDecY decimalNumberBySubtracting: coordTile.y] decimalNumberByMultiplyingBy:multiplier];
     
     
     RMTileDec newCoordTile;
     
-    newCoordTile.x = [baseTileDecX decimalNumberByAdding:xDiff];
-    newCoordTile.y = [baseTileDecY decimalNumberByAdding:yDiff];
+    newCoordTile.x = [baseTileDecX decimalNumberBySubtracting:xDiff];
+    newCoordTile.y = [baseTileDecY decimalNumberBySubtracting:yDiff];
     newCoordTile.zoom = coordTile.zoom;
     
     
