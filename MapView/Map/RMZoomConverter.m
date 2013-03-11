@@ -27,6 +27,18 @@ CGFloat RadiansToDegrees(CGFloat radians)
 
 int minZoom;
 
+- initWithBaseTile: (RMTile) aBaseTile zoomSteps: (int) aZoomSteps{
+    self = [super init];
+    
+    if (self){
+        baseTile.x = aBaseTile.x;
+        baseTile.y = aBaseTile.y;
+        baseTile.zoom  = aBaseTile.zoom;
+        minZoom = aZoomSteps;
+        zoomSteps = aZoomSteps;
+    }
+    return self;
+}
 
 
 -(id)initWithBaseCoord:(CLLocationCoordinate2D)aBaseCoord minZoom: (int) aMinZoom zoomSteps: (int) aZoomSteps{

@@ -1683,6 +1683,17 @@
     return [super hitTest:point withEvent:event];
 }
 
+- (void)setSelectedAnnotation:(RMAnnotation *)selectedAnnotation
+{
+    if ( ! [selectedAnnotation isEqual:_currentAnnotation])
+        [self selectAnnotation:selectedAnnotation animated:YES];
+}
+
+- (RMAnnotation *)selectedAnnotation
+{
+    return _currentAnnotation;
+}
+
 - (void)selectAnnotation:(RMAnnotation *)annotation animated:(BOOL)animated
 {
     if ( ! annotation && _currentAnnotation)

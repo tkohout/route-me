@@ -19,6 +19,9 @@ typedef struct{
 
 @interface RMZoomConverter : NSObject
 -(id)initWithBaseCoord:(CLLocationCoordinate2D)aBaseCoord minZoom: (int) minZoom zoomSteps: (int) aZoomSteps;
+
+- initWithBaseTile: (RMTile) aBaseTile zoomSteps: (int) aZoomSteps;
+
 - (RMTile) convertTile: (RMTile) tile;
 - (RMTile) reverseConvertTile: (RMTile) tile;
 
