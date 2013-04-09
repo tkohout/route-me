@@ -176,6 +176,33 @@ int minZoom;
     
 }
 
+- (CLLocationCoordinate2D) reverseConvertCoordinate: (CLLocationCoordinate2D) coord{
+    CLLocationCoordinate2D newCoord;
+    
+    RMTileDec coordTile = [self coordinateToTile:coord zoom:baseTile.zoom];
+    
+    NSDecimalNumber * baseTileDecX = [[NSDecimalNumber alloc] initWithDouble: baseTile.x ];
+    NSDecimalNumber * baseTileDecY = [[NSDecimalNumber alloc] initWithDouble: baseTile.y ];
+    
+    NSDecimalNumber * multiplier = [[NSDecimalNumber alloc] initWithInt:(int)pow(2, zoomSteps)];
+    
+    NSDecimalNumber * xDiff = [[baseTileDecX decimalNumberBySubtracting: coordTile.x] decimalNumberByDividingBy:multiplier] ;
+    NSDecimalNumber * yDiff = [[baseTileDecY decimalNumberBySubtracting: coordTile.y] decimalNumberByDividingBy:multiplier];
+    
+    
+    RMTileDec newCoordTile;
+    
+    newCoordTile.x = [baseTileDecX decimalNumberBySubtracting:xDiff];
+    newCoordTile.y = [baseTileDecY decimalNumberBySubtracting:yDiff];
+    newCoordTile.zoom = coordTile.zoom;
+    
+    
+    newCoord = [self tileToCoordinate: newCoordTile];
+    
+    return newCoord;
+    
+}
+
 - (NSDecimalNumber *)abs:(NSDecimalNumber *)num {
     if ([num compare:[NSDecimalNumber zero]] == NSOrderedAscending) {
         // Number is negative. Multiply by -1
@@ -227,10 +254,53 @@ int minZoom;
          BOOL updateResult = [db executeUpdate: query];
          [db commit];*/
         
-        
-        
-        
     }
+    
+    FMResultSet *preferences = [db executeQuery:@"SELECT * FROM preferences"];
+    
+    CLLocationCoordinate2D topLeft, bottomRight, center;
+    
+    while ([preferences next]){
+        NSString * query;
+        
+        if ([[preferences stringForColumn:@"name"] isEqualToString: @"map.minZoom"]){
+             query = [NSString stringWithFormat:@"UPDATE preferences SET value= '%i' WHERE name='%@';", [preferences intForColumn:@"value"] - zoomSteps, @"map.minZoom"];
+            allQueries = [allQueries stringByAppendingString:query];
+        }else if ([[preferences stringForColumn:@"name"] isEqualToString: @"map.maxZoom"]){
+            query = [NSString stringWithFormat:@"UPDATE preferences SET value= '%i' WHERE name='%@';", [preferences intForColumn:@"value"] - zoomSteps, @"map.maxZoom"];
+            allQueries = [allQueries stringByAppendingString:query];
+        }else if ([[preferences stringForColumn:@"name"] isEqualToString: @"map.coverage.topLeft.latitude"]){
+            topLeft.latitude = [preferences doubleForColumn:@"value"];
+        }else if ([[preferences stringForColumn:@"name"] isEqualToString: @"map.coverage.topLeft.longitude"]){
+            topLeft.longitude = [preferences doubleForColumn:@"value"];
+        }else if ([[preferences stringForColumn:@"name"] isEqualToString: @"map.coverage.bottomRight.latitude"]){
+            bottomRight.latitude = [preferences doubleForColumn:@"value"];
+        }else if ([[preferences stringForColumn:@"name"] isEqualToString: @"map.coverage.bottomRight.longitude"]){
+            bottomRight.longitude = [preferences doubleForColumn:@"value"];
+        }else if ([[preferences stringForColumn:@"name"] isEqualToString: @"map.coverage.center.latitude"]){
+            center.latitude = [preferences doubleForColumn:@"value"];
+        }else if ([[preferences stringForColumn:@"name"] isEqualToString: @"map.coverage.center.longitude"]){
+            center.longitude = [preferences doubleForColumn:@"value"];
+        }
+    }
+    
+    CLLocationCoordinate2D topLeftConverted, bottomRightConverted, centerConverted;
+ 
+    topLeftConverted = [self convertCoordinate:topLeft];
+    bottomRightConverted = [self convertCoordinate:bottomRight];
+    centerConverted = [self convertCoordinate:center];
+    
+    allQueries = [allQueries stringByAppendingString:[NSString stringWithFormat:@"UPDATE preferences SET value= '%f' WHERE name='%@';", topLeftConverted.latitude, @"map.coverage.topLeft.latitude"]];
+    
+    allQueries = [allQueries stringByAppendingString:[NSString stringWithFormat:@"UPDATE preferences SET value= '%f' WHERE name='%@';", topLeftConverted.longitude, @"map.coverage.topLeft.longitude"]];
+    
+    allQueries = [allQueries stringByAppendingString:[NSString stringWithFormat:@"UPDATE preferences SET value= '%f' WHERE name='%@';", bottomRightConverted.latitude, @"map.coverage.bottomRight.latitude"]];
+    
+    allQueries = [allQueries stringByAppendingString:[NSString stringWithFormat:@"UPDATE preferences SET value= '%f' WHERE name='%@';", bottomRightConverted.longitude, @"map.coverage.bottomRight.longitude"]];
+    
+    allQueries = [allQueries stringByAppendingString:[NSString stringWithFormat:@"UPDATE preferences SET value= '%f' WHERE name='%@';", centerConverted.latitude, @"map.coverage.center.latitude"]];
+    
+    allQueries = [allQueries stringByAppendingString:[NSString stringWithFormat:@"UPDATE preferences SET value= '%f' WHERE name='%@';", centerConverted.longitude, @"map.coverage.center.longitude"]];
     
     NSLog(@"%@", allQueries);
     

@@ -493,5 +493,6 @@ typedef enum : NSUInteger {
 /** The annotation that is currently selected. */
 @property (nonatomic, retain) RMAnnotation *selectedAnnotation;
 
-
+/*Custom location manager for indoor user location*/
+@property (nonatomic, retain) CLLocationManager * customLocationManager;
 @end

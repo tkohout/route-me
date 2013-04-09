@@ -133,6 +133,7 @@
     BOOL _delegateHasDidUpdateUserLocation;
     BOOL _delegateHasDidFailToLocateUserWithError;
     BOOL _delegateHasDidChangeUserTrackingMode;
+    BOOL _delegateHasDidSwipeUp;
 
     UIView *_backgroundView;
     RMMapScrollView *_mapScrollView;
@@ -497,6 +498,7 @@
     _delegateHasDidUpdateUserLocation = [_delegate respondsToSelector:@selector(mapView:didUpdateUserLocation:)];
     _delegateHasDidFailToLocateUserWithError = [_delegate respondsToSelector:@selector(mapView:didFailToLocateUserWithError:)];
     _delegateHasDidChangeUserTrackingMode = [_delegate respondsToSelector:@selector(mapView:didChangeUserTrackingMode:animated:)];
+    _delegateHasDidSwipeUp = [_delegate respondsToSelector:@selector(mapViewDidSwipeUp:)];
 }
 
 - (void)registerMoveEventByUser:(BOOL)wasUserEvent
@@ -1249,6 +1251,12 @@
     if (_loadingTileView)
     {
         CGSize delta = CGSizeMake(scrollView.contentOffset.x - _lastContentOffset.x, scrollView.contentOffset.y - _lastContentOffset.y);
+        if (delta.height > 50.0f){
+            if (_delegateHasDidSwipeUp){
+                [self.delegate mapViewDidSwipeUp:self];
+            }
+        }
+        
         CGPoint newOffset = CGPointMake(_loadingTileView.contentOffset.x + delta.width, _loadingTileView.contentOffset.y + delta.height);
         _loadingTileView.contentOffset = newOffset;
     }
@@ -2932,8 +2940,11 @@
             [_delegate mapViewWillStartLocatingUser:self];
 
         self.userLocation = [RMUserLocation annotationWithMapView:self coordinate:CLLocationCoordinate2DMake(MAXFLOAT, MAXFLOAT) andTitle:nil];
-
-        _locationManager = [[CLLocationManager alloc] init];
+        if (self.customLocationManager){
+            _locationManager = self.customLocationManager;
+        }else{
+            _locationManager = [[CLLocationManager alloc] init];
+        }
         _locationManager.headingFilter = 5.0;
         _locationManager.delegate = self;
         [_locationManager startUpdatingLocation];
@@ -3161,6 +3172,11 @@
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
 {
+    if (!newLocation){
+        self.userLocation.layer.hidden = YES;
+        _trackingHaloAnnotation.layer.hidden= YES;
+    }
+    
     if ( ! _showsUserLocation || _mapScrollView.isDragging || ! newLocation || ! CLLocationCoordinate2DIsValid(newLocation.coordinate))
         return;
 

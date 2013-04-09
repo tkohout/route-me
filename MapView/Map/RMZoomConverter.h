@@ -26,6 +26,7 @@ typedef struct{
 - (RMTile) reverseConvertTile: (RMTile) tile;
 
 - (CLLocationCoordinate2D) convertCoordinate: (CLLocationCoordinate2D) coord;
+- (CLLocationCoordinate2D) reverseConvertCoordinate: (CLLocationCoordinate2D) coord;
 
 - (void) convertTileSource: (NSString *) filePath;
 
