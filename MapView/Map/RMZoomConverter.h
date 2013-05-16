@@ -30,6 +30,7 @@ typedef struct{
 
 - (void) convertTileSource: (NSString *) filePath;
 
+- (double) convertZoom: (double) zoom;
 
 @property (nonatomic, readonly) int maxZoom;
 @property (nonatomic, readonly) int minZoom;

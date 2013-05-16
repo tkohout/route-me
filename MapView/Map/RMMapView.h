@@ -495,4 +495,7 @@ typedef enum : NSUInteger {
 
 /*Custom location manager for indoor user location*/
 @property (nonatomic, retain) CLLocationManager * customLocationManager;
+
+/*Rotates map in desired angle*/
+- (void) rotateMapInAngle: (double) angle animated: (BOOL) animated;
 @end

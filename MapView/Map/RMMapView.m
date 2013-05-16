@@ -1707,7 +1707,7 @@
     if ( ! annotation && _currentAnnotation)
         [self deselectAnnotation:_currentAnnotation animated:animated];
     
-    if (annotation.isAnnotationOnScreen && ! [annotation isEqual:_currentAnnotation])
+    if (annotation.isAnnotationOnScreen && ! [annotation isEqual:_currentAnnotation] && annotation.layer.canShowCallout)
     {
         [self deselectAnnotation:_currentAnnotation animated:NO];
         [self popupCalloutViewForAnnotation:annotation animated:animated];
@@ -3422,6 +3422,38 @@
             }
         }
     }
+}
+
+
+- (void) rotateMapInAngle: (double) angle animated: (BOOL) animated{
+    [CATransaction begin];
+    [CATransaction setAnimationDuration:0.5];
+    [CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
+    
+    [UIView animateWithDuration:0.5
+                          delay:0.0
+                        options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationCurveEaseInOut
+                     animations:^(void)
+     {
+         CGFloat rotationAngle = (M_PI / -180) * angle;
+         
+         _mapTransform = CGAffineTransformMakeRotation(rotationAngle);
+         _annotationTransform = CATransform3DMakeAffineTransform(CGAffineTransformMakeRotation(-rotationAngle));
+         
+         _mapScrollView.transform = _mapTransform;
+         _overlayView.transform   = _mapTransform;
+         
+         for (RMAnnotation *annotation in _annotations)
+             if ([annotation.layer isKindOfClass:[RMMarker class]] && ! annotation.isUserLocationAnnotation)
+                 annotation.layer.transform = _annotationTransform;
+         
+         
+     }
+                     completion:^(BOOL finished) {
+                         [self correctPositionOfAllAnnotations];
+                     }];
+    
+    [CATransaction commit];
 }
 
 @end

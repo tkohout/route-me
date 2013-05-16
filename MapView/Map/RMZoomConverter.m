@@ -46,7 +46,7 @@ int minZoom;
     
     if (self){
         
-        minZoom = aMinZoom - zoomSteps;
+        minZoom = [self convertZoom: aMinZoom];
         
         RMTileDec baseTileDec = [self coordinateToTile:aBaseCoord zoom:minZoom];
         baseTile.x = [baseTileDec.x intValue];
@@ -59,7 +59,11 @@ int minZoom;
 }
 
 -(int)maxZoom{
-    return 21 - zoomSteps;
+    return [self convertZoom:21];
+}
+
+- (double) convertZoom: (double) zoom{
+    return zoom - zoomSteps;
 }
 
 - (int)minZoom{
