@@ -16,7 +16,7 @@
 {
     if (self.mapScrollViewDelegate)
         [self.mapScrollViewDelegate scrollView:self correctedContentOffset:&contentOffset];
-
+    
     [super setContentOffset:contentOffset];
 }
 
@@ -27,6 +27,8 @@
 
     [super setContentOffset:contentOffset animated:animated];
 }
+
+
 
 - (void)setContentSize:(CGSize)contentSize
 {

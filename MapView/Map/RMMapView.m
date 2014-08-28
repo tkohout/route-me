@@ -156,6 +156,7 @@
     CGPoint _lastContentOffset, _accumulatedDelta;
     CGSize _lastContentSize;
     BOOL _mapScrollViewIsZooming;
+    BOOL _mapScrollViewIsAnimating;
 
     BOOL _enableDragging, _enableBouncing;
 
@@ -1090,7 +1091,8 @@
     [_mapScrollView removeFromSuperview]; [_mapScrollView release]; _mapScrollView = nil;
 
     _mapScrollViewIsZooming = NO;
-
+    _mapScrollViewIsAnimating = NO;
+    
     int tileSideLength = [_tileSourcesContainer tileSideLength];
     CGSize contentSize = CGSizeMake(tileSideLength, tileSideLength); // zoom level 1
 
@@ -1203,8 +1205,46 @@
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    if ( ! decelerate)
+    if ( ! decelerate){
         [_moveDelegateQueue setSuspended:NO];
+    }else{
+        _mapScrollViewIsAnimating = YES;
+        return;
+    }
+    
+    [self correctContentOffsetAfterDrag];
+}
+
+- (void) correctContentOffsetAfterDrag{
+    RMProjectedRect planetBounds = _projection.planetBounds;
+    double currentMetersPerPixel = planetBounds.size.width / _mapScrollView.contentSize.width;
+    
+    CGPoint bottomLeft = CGPointMake((_mapScrollView.contentOffset).x,
+                                     _mapScrollView.contentSize.height - ((_mapScrollView.contentOffset).y + _mapScrollView.bounds.size.height));
+    
+    RMProjectedRect normalizedProjectedRect;
+    normalizedProjectedRect.origin.x = (bottomLeft.x * currentMetersPerPixel) - fabs(planetBounds.origin.x);
+    normalizedProjectedRect.origin.y = (bottomLeft.y * currentMetersPerPixel) - fabs(planetBounds.origin.y);
+    normalizedProjectedRect.size.width = _mapScrollView.bounds.size.width * currentMetersPerPixel;
+    normalizedProjectedRect.size.height = _mapScrollView.bounds.size.height * currentMetersPerPixel;
+    
+    
+    if (RMProjectedRectContainsProjectedRect(_constrainingProjectedBounds, normalizedProjectedRect))
+        return;
+    
+    
+    RMProjectedRect fittedProjectedRect = [self fitProjectedRect:normalizedProjectedRect intoRect:_constrainingProjectedBounds];
+    
+    RMProjectedPoint normalizedProjectedPoint;
+	normalizedProjectedPoint.x = fittedProjectedRect.origin.x + fabs(planetBounds.origin.x);
+	normalizedProjectedPoint.y = fittedProjectedRect.origin.y + fabs(planetBounds.origin.y);
+    
+    CGPoint correctedContentOffset = CGPointMake(normalizedProjectedPoint.x / currentMetersPerPixel,
+                                                 _mapScrollView.contentSize.height - ((normalizedProjectedPoint.y / currentMetersPerPixel) + _mapScrollView.bounds.size.height));
+    
+    
+    _mapScrollViewIsAnimating = YES;
+    [_mapScrollView setContentOffset:correctedContentOffset animated:YES];
 }
 
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
@@ -1215,11 +1255,15 @@
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
+    [self correctContentOffsetAfterDrag];
+    
     [_moveDelegateQueue setSuspended:NO];
 }
 
+
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
 {
+    _mapScrollViewIsAnimating = NO;
     [_moveDelegateQueue setSuspended:NO];
 }
 
@@ -1295,6 +1339,11 @@
     {
         return;
     }
+    
+    //Don't correct anything when animating
+    if (_mapScrollViewIsAnimating && _enableBouncing){
+        return;
+    }
 
     RMProjectedRect planetBounds = _projection.planetBounds;
     double currentMetersPerPixel = planetBounds.size.width / aScrollView.contentSize.width;
@@ -1319,7 +1368,40 @@
 
     CGPoint correctedContentOffset = CGPointMake(normalizedProjectedPoint.x / currentMetersPerPixel,
                                                  aScrollView.contentSize.height - ((normalizedProjectedPoint.y / currentMetersPerPixel) + aScrollView.bounds.size.height));
+    
+    
+    if (_enableBouncing && ( _mapScrollView.isDragging || _mapScrollViewIsZooming)){
+        CGPoint overDrag = CGPointMake((*aContentOffset).x - (correctedContentOffset).x, (*aContentOffset).y - (correctedContentOffset).y);
+        
+        if ((fabs(overDrag.x) >= 1) || (fabs(overDrag.y) >= 1)){
+        
+        NSLog(@"%i %i",  _mapScrollView.isDragging, _mapScrollViewIsZooming);
+        
+        
+        float stretchFactor = 1.25;
+        
+        NSLog(@"Sub: %f %f",  overDrag.x, overDrag.y);
+        
+         NSLog(@"Log: %f %f",  logx(fabs(overDrag.x), stretchFactor), logx(fabs(overDrag.y), stretchFactor));
+        
+        NSLog(@"Original content size: %f %f",  (*aContentOffset).x, (*aContentOffset).y);
+        
+        NSLog(@"Content size: %f %f",  (correctedContentOffset).x, (correctedContentOffset).y);
+        
+                 
+        correctedContentOffset = CGPointMake( (fabs(overDrag.x) >= 1) ? (correctedContentOffset).x  + (fabs(overDrag.x) / overDrag.x) * logx( fabs(overDrag.x), stretchFactor) : (correctedContentOffset).x, (fabs(overDrag.y) >= 1) ? (correctedContentOffset).y  + (fabs(overDrag.y) / overDrag.y) * logx(fabs(overDrag.y), stretchFactor) : (correctedContentOffset).y);
+        
+        
+        NSLog(@"Corrected size: %f %f",  (correctedContentOffset).x, (correctedContentOffset).y);
+        }
+    }
+    
     *aContentOffset = correctedContentOffset;
+}
+
+float logx(float value, float base)
+{
+    return log10f(value) / log10f(base);
 }
 
 - (void)scrollView:(RMMapScrollView *)aScrollView correctedContentSize:(inout CGSize *)aContentSize
@@ -1634,6 +1716,31 @@
     }
 }
 
+- (SMCalloutImageBackgroundView *) calloutBackgroundView{
+    SMCalloutImageBackgroundView * backgroundView = [SMCalloutImageBackgroundView new];
+    backgroundView.rightCapImage =[UIImage imageNamed:@"SMCalloutViewRightCap.png"];
+    backgroundView.leftCapImage =[UIImage imageNamed:@"SMCalloutViewLeftCap.png"];
+    backgroundView.topAnchorImage =[UIImage imageNamed:@"SMCalloutViewTopAnchor.png"];
+    backgroundView.bottomAnchorImage =[UIImage imageNamed:@"SMCalloutViewBottomAnchor.png"];
+    backgroundView.backgroundImage =[UIImage imageNamed:@"SMCalloutViewBackground.png"];
+    return backgroundView;
+}
+
+- (UILabel *) calloutTitleViewWithText: (NSString *) text{
+    UILabel * titleView = [[UILabel alloc] init];
+    
+    UIFont * font = [UIFont systemFontOfSize:15.0f];
+    CGSize titleSize = [text sizeWithFont:font];
+    NSLog(@"%f %f", titleSize.width, titleSize.height);
+    
+    titleView.frame = CGRectMake(0, 10, titleSize.width, 22);
+    titleView.textColor = [UIColor blackColor];
+    titleView.text = text;
+    return titleView;
+}
+
+
+
 // Overlay
 
 - (void)tapOnAnnotation:(RMAnnotation *)anAnnotation atPoint:(CGPoint)aPoint
@@ -1643,7 +1750,8 @@
         _currentAnnotation = [anAnnotation retain];
         
         _currentCallout = [[SMCalloutView alloc] init];
-        
+        _currentCallout.backgroundView = [self calloutBackgroundView];
+        _currentCallout.titleView =[self calloutTitleViewWithText:anAnnotation.title];
         _currentCallout.title = anAnnotation.title;
         
         if (anAnnotation.layer.leftCalloutAccessoryView)
@@ -1740,6 +1848,8 @@
     _currentAnnotation = [anAnnotation retain];
     
     _currentCallout = [SMCalloutView new];
+    _currentCallout.backgroundView = [self calloutBackgroundView];
+    _currentCallout.titleView =[self calloutTitleViewWithText:anAnnotation.title];
     
     _currentCallout.title    = anAnnotation.title;
     //_currentCallout.subtitle = anAnnotation.subtitle;

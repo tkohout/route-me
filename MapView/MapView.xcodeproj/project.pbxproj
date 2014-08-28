@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		126693040EB76C0B00E002D5 /* RMConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 126692A00EB75C0A00E002D5 /* RMConfiguration.m */; };
+		14008D8418401B6E00DE83E4 /* PersistentBackgroundLabel.h in Headers */ = {isa = PBXBuildFile; fileRef = 14008D8218401B6E00DE83E4 /* PersistentBackgroundLabel.h */; };
+		14008D8518401B6E00DE83E4 /* PersistentBackgroundLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 14008D8318401B6E00DE83E4 /* PersistentBackgroundLabel.m */; };
 		14CDECE516E4DE9800B13056 /* RMZoomConverter.h in Headers */ = {isa = PBXBuildFile; fileRef = 14CDECBE16E4DE9800B13056 /* RMZoomConverter.h */; };
 		14CDECE616E4DE9800B13056 /* RMZoomConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = 14CDECBF16E4DE9800B13056 /* RMZoomConverter.m */; };
 		14CDECEB16E4DE9800B13056 /* SMCalloutView.h in Headers */ = {isa = PBXBuildFile; fileRef = 14CDECDE16E4DE9800B13056 /* SMCalloutView.h */; };
@@ -117,6 +119,18 @@
 		1266929F0EB75C0A00E002D5 /* RMConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMConfiguration.h; sourceTree = "<group>"; };
 		126692A00EB75C0A00E002D5 /* RMConfiguration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMConfiguration.m; sourceTree = "<group>"; };
 		12F2031E0EBB65E9003D7B6B /* RMMapViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMMapViewDelegate.h; sourceTree = "<group>"; };
+		14008D8218401B6E00DE83E4 /* PersistentBackgroundLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PersistentBackgroundLabel.h; path = "../../../CVUT Navigator/Classes/Views/PersistentBackgroundLabel.h"; sourceTree = "<group>"; };
+		14008D8318401B6E00DE83E4 /* PersistentBackgroundLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PersistentBackgroundLabel.m; path = "../../../CVUT Navigator/Classes/Views/PersistentBackgroundLabel.m"; sourceTree = "<group>"; };
+		14A4E69A1842885800C7077C /* SMCalloutViewTopAnchor@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "SMCalloutViewTopAnchor@2x.png"; path = "Map/SMCalloutView/SMCalloutViewTopAnchor@2x.png"; sourceTree = "<group>"; };
+		14A4E69B1842885800C7077C /* SMCalloutViewLeftCap@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "SMCalloutViewLeftCap@2x.png"; path = "Map/SMCalloutView/SMCalloutViewLeftCap@2x.png"; sourceTree = "<group>"; };
+		14A4E69C1842885800C7077C /* SMCalloutViewBottomAnchor@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "SMCalloutViewBottomAnchor@2x.png"; path = "Map/SMCalloutView/SMCalloutViewBottomAnchor@2x.png"; sourceTree = "<group>"; };
+		14A4E69D1842885800C7077C /* SMCalloutViewBackground@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "SMCalloutViewBackground@2x.png"; path = "Map/SMCalloutView/SMCalloutViewBackground@2x.png"; sourceTree = "<group>"; };
+		14A4E69E1842885800C7077C /* SMCalloutViewRightCap@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "SMCalloutViewRightCap@2x.png"; path = "Map/SMCalloutView/SMCalloutViewRightCap@2x.png"; sourceTree = "<group>"; };
+		14A4E69F18428ED200C7077C /* SMCalloutViewRightCap.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = SMCalloutViewRightCap.png; path = Map/SMCalloutView/SMCalloutViewRightCap.png; sourceTree = "<group>"; };
+		14A4E6A018428ED200C7077C /* SMCalloutViewLeftCap.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = SMCalloutViewLeftCap.png; path = Map/SMCalloutView/SMCalloutViewLeftCap.png; sourceTree = "<group>"; };
+		14A4E6A118428ED200C7077C /* SMCalloutViewTopAnchor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = SMCalloutViewTopAnchor.png; path = Map/SMCalloutView/SMCalloutViewTopAnchor.png; sourceTree = "<group>"; };
+		14A4E6A218428ED200C7077C /* SMCalloutViewBottomAnchor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = SMCalloutViewBottomAnchor.png; path = Map/SMCalloutView/SMCalloutViewBottomAnchor.png; sourceTree = "<group>"; };
+		14A4E6A318428ED200C7077C /* SMCalloutViewBackground.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = SMCalloutViewBackground.png; path = Map/SMCalloutView/SMCalloutViewBackground.png; sourceTree = "<group>"; };
 		14CDECBE16E4DE9800B13056 /* RMZoomConverter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMZoomConverter.h; sourceTree = "<group>"; };
 		14CDECBF16E4DE9800B13056 /* RMZoomConverter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMZoomConverter.m; sourceTree = "<group>"; };
 		14CDECC116E4DE9800B13056 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
@@ -330,6 +344,8 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				14008D8218401B6E00DE83E4 /* PersistentBackgroundLabel.h */,
+				14008D8318401B6E00DE83E4 /* PersistentBackgroundLabel.m */,
 				14CDECC016E4DE9800B13056 /* SMCalloutView */,
 				2BF0E4540F73119C0095A926 /* Documentation */,
 				2B246B230F8AE20300A7D55D /* Testing */,
@@ -435,6 +451,16 @@
 		B83E67570E80F3FB001663B6 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				14A4E69F18428ED200C7077C /* SMCalloutViewRightCap.png */,
+				14A4E6A018428ED200C7077C /* SMCalloutViewLeftCap.png */,
+				14A4E6A118428ED200C7077C /* SMCalloutViewTopAnchor.png */,
+				14A4E6A218428ED200C7077C /* SMCalloutViewBottomAnchor.png */,
+				14A4E6A318428ED200C7077C /* SMCalloutViewBackground.png */,
+				14A4E69A1842885800C7077C /* SMCalloutViewTopAnchor@2x.png */,
+				14A4E69B1842885800C7077C /* SMCalloutViewLeftCap@2x.png */,
+				14A4E69C1842885800C7077C /* SMCalloutViewBottomAnchor@2x.png */,
+				14A4E69D1842885800C7077C /* SMCalloutViewBackground@2x.png */,
+				14A4E69E1842885800C7077C /* SMCalloutViewRightCap@2x.png */,
 				8D1107310486CEB800E47090 /* Info.plist */,
 				B86F26E10E877802007A3773 /* DesktopMapView-Info.plist */,
 				2B2BADD60FA3B45A00EE37AA /* marker-X.png */,
@@ -598,6 +624,7 @@
 				DD2B375114CF814F008DE8CB /* FMDatabaseQueue.h in Headers */,
 				DD8CDB4A14E0507100B73EB9 /* RMMapQuestOSMSource.h in Headers */,
 				1607499514E120A100D535F5 /* RMGenericMapSource.h in Headers */,
+				14008D8418401B6E00DE83E4 /* PersistentBackgroundLabel.h in Headers */,
 				16FFF2CB14E3DBF700A170EC /* RMMapQuestOpenAerialSource.h in Headers */,
 				DD8FD7541559E4A40044D96F /* RMUserLocation.h in Headers */,
 				DDA6B8BD155CAB67003DB5D8 /* RMUserTrackingBarButtonItem.h in Headers */,
@@ -708,6 +735,7 @@
 				161E563B1594664E00B00BB6 /* RMOpenSeaMapLayer.m in Sources */,
 				1656665615A1DF7900EF3DC7 /* RMCoordinateGridSource.m in Sources */,
 				16E5A63B15E531F200C92A5A /* RMCompositeSource.m in Sources */,
+				14008D8518401B6E00DE83E4 /* PersistentBackgroundLabel.m in Sources */,
 				DD5FA1EC15E2B020004EB6C5 /* RMLoadingTileView.m in Sources */,
 				DD4195CA162356900049E6BA /* RMBingSource.m in Sources */,
 				14CDECE616E4DE9800B13056 /* RMZoomConverter.m in Sources */,
